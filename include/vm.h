@@ -3,6 +3,7 @@
 #define VM_H
 
 #include <stdbool.h>
+#include "program.h"
 
 #define sp (registers[SP])
 #define ip (registers[IP])
