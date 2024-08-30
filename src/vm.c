@@ -1,28 +1,10 @@
+// vm.c
+#include "../headers/vm.h"
 #include <stdio.h>
-#include <stdbool.h>
 
-#define sp (registers[SP])
-#define ip (registers[IP])
-
-typedef enum {
-    A, B, C, D, E, F, IP, SP,
-    NUM_REG
-} REGISTERS;
-
-int registers[NUM_REG];
-
-int stack[256];
+int registers[NUM_REG] = {0};
+int stack[256] = {0};
 bool running = true;
-
-typedef enum {
-    PSH, ADD,
-    SUB, MUL,
-    DIV, MOD,
-    POP, SET,
-    AND, OR,
-    NOT,
-    HLT
-} INST_SET;
 
 const int program[] = {
     PSH, 8,
@@ -41,20 +23,20 @@ const int program[] = {
     HLT         
 };
 
-
-
 int fetch() {
     return program[ip];
 }
 
 void eval(int instr) {
     switch(instr) {
-        //Machine Control Instructions
         case HLT: {
             running = false;
             break;
         }
-        //Stack Instructions
+        case NOP:{
+            ip++;
+            break;
+        } //NOP
         case PSH: {
             if (sp < 255) {
                 sp++;
@@ -75,7 +57,6 @@ void eval(int instr) {
             }
             break;
         }
-        //Arithmetic Instructions
         case ADD: {
             if (sp >= 1) {
                 int a = stack[sp--];
@@ -88,9 +69,9 @@ void eval(int instr) {
                 running = false;
             }
             break;
-        }// ADD
+        }
         case SUB:{
-            if(sp>=1){
+            if(sp >= 1){
                 int a = stack[sp--];
                 int b = stack[sp--];
                 int result = b - a;
@@ -101,95 +82,85 @@ void eval(int instr) {
                 running = false;
             }
             break;
-        }// SUB
+        }
         case MUL:{
-                if(sp>=1){
+            if(sp >= 1){
                 int a = stack[sp--];
                 int b = stack[sp--];
                 int result = b * a;
                 sp++;
                 stack[sp] = result;
-                } else {
+            } else {
                 printf("Not enough values on stack to perform MUL\n");
-                }
-                break;
-        }// MUL 
+            }
+            break;
+        }
         case DIV:{
-                if(sp>=1){
+            if(sp >= 1){
                 int a = stack[sp--];
                 int b = stack[sp--];
-                if(a==0){
+                if(a == 0){
                     printf("Division by zero\n");
                     running = false;
-                }else{  
-                    int result = b/a;
+                } else {  
+                    int result = b / a;
                     sp++;
                     stack[sp] = result;
-                }              
-                } else {
+                }
+            } else {
                 printf("Not enough values on stack to perform DIV\n");
-                }
-                break;
-        }//DIV
+            }
+            break;
+        }
         case MOD:{
-                if(sp>=1){
-                    int a = stack[sp--];
-                    int b = stack[sp--];
-                    int result = b%a;
-                    sp++;
-                    stack[sp] = result;
-                } else {
-                    printf("Not enough values on stack to perform MOD\n");
-                }
-                break;
-        }//MOD
-        //Logical Instructions
+            if(sp >= 1){
+                int a = stack[sp--];
+                int b = stack[sp--];
+                int result = b % a;
+                sp++;
+                stack[sp] = result;
+            } else {
+                printf("Not enough values on stack to perform MOD\n");
+            }
+            break;
+        }
         case AND:{
             if(sp >= 1){
                 int a = stack[sp--];
                 int b = stack[sp--];
-                int result = a&b;
+                int result = a & b;
                 sp++;
                 stack[sp] = result;
-            }else{
+            } else {
                 printf("Not enough values to perform AND\n");
                 running = false;
             }
             break;
-        }//AND
+        }
         case OR:{
             if(sp >= 1){
                 int a = stack[sp--];
                 int b = stack[sp--];
-                int result = a|b;
+                int result = a | b;
                 sp++;
                 stack[sp] = result;
-            }else{
+            } else {
                 printf("Not enough values on stack to perform OR\n");
                 running = false;
             }
             break;
-        }//OR
+        }
         case NOT:{
-            if(sp>=1){
+            if(sp >= 0){
                 int a = stack[sp--];
                 int result = !a;
                 sp++;
                 stack[sp] = result;
-            }else{
-                printf("Not enough values on stack to perform NOT");
+            } else {
+                printf("Not enough values on stack to perform NOT\n");
                 running = false;
             }
             break;
         }
-    } // SWITCH
-} //EVAL
-
-int main() {
-    while (running) {
-        eval(fetch());
-        ip++;
     }
-    return 0;
 }
-
