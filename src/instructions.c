@@ -6,6 +6,11 @@ void halt() {
     running = false;
 }
 
+void nop(){
+    ip++;
+}
+
+
 void push() {
     if (sp < 255) {
         sp++;
@@ -121,12 +126,34 @@ void or_op() {
 
 void not_op() {
     if (sp >= 0) {
-        int a = stack[sp--];
-        int result = !a;
+        int a = stack[sp--]; 
         sp++;
-        stack[sp] = result;
+        stack[sp] = ~a;
     } else {
         printf("Not enough values on stack to perform NOT\n");
+        running = false;
+    }
+}
+
+void load(){
+    int address = program[++ip];
+    if(address >= 0 && address < MEM_SIZE){
+        int value = memory[address];
+        sp++;
+        stack[sp] = value;
+    }else{
+        printf("Memory out of bounds!\n");
+        running = false;
+    }
+}
+
+void store(){
+    int address = program[++ip];
+    if(address>=0 && address < MEM_SIZE){
+        int value = stack[sp--];
+        memory[address] = value;
+    }else{
+        printf("Memory Write Error\n");
         running = false;
     }
 }

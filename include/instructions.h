@@ -4,6 +4,7 @@
 #define INSTRUCTIONS_H
 
 void halt();
+void nop();
 void push();
 void pop();
 void add();
@@ -14,5 +15,8 @@ void mod();
 void and_op();
 void or_op();
 void not_op();
+void load();
+void store();
+
 
 #endif

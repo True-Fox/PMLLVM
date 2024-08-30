@@ -1,25 +1,24 @@
 #include "include/vm.h"
 #include "include/program.h"
+#include <stdio.h>
 
 const int program[] = {
-    PSH, 8,
-    PSH, 3,
+    PSH, 10,
+    ST, 0,
+    PSH, 20,
+    ST, 1, 
+    LD, 0,
+    LD, 1,
     ADD,
-    PSH, 2,
-    MUL,
-    PSH, 4,
-    MOD,
-    PSH, 1,
-    AND,
-    NOT,
-    PSH, 3,
-    OR,
     POP,
-    HLT         
+    HLT
 };
 
+
 int main() {
+    int count = 0;
     while (running) {
+        printf("cycle %d\n", count++);
         eval(fetch());
         ip++;
     }

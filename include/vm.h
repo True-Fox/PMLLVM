@@ -2,6 +2,8 @@
 #ifndef VM_H
 #define VM_H
 
+#define MEM_SIZE 1024
+
 #include <stdbool.h>
 #include "program.h"
 
@@ -16,22 +18,20 @@ typedef enum {
 
 // Instruction set enumeration
 typedef enum {
-    PSH, ADD,
-    SUB, MUL,
-    DIV, MOD,
-    POP, SET,
-    AND, OR,
-    NOT, 
-    HLT, NOP
+    PSH, ADD, SUB, MUL,
+    DIV, MOD, POP, SET,
+    AND, OR, NOT,
+    LD, ST, HLT, NOP
 } INST_SET;
 
 // Global variables
 extern int registers[NUM_REG];
+extern int memory[MEM_SIZE];
 extern int stack[256];
 extern bool running;
 
 // Function declarations
 int fetch();
-void eval(int instr);
+void eval(unsigned long int instr);
 
 #endif // VM_H
