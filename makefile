@@ -2,28 +2,43 @@ SRC_DIR = src
 OBJ_DIR = obj
 INCLUDE_DIR = include
 
-SRC_FILES = main.c $(SRC_DIR)/vm.c $(SRC_DIR)/instructions.c
-OBJ_FILES = $(OBJ_DIR)/main.o $(OBJ_DIR)/vm.o $(OBJ_DIR)/instructions.o
-CC_FLAGS = -Wall -Wextra -g -std=c11 -I$(INCLUDE_DIR)
+SRC_FILES = $(wildcard $(SRC_DIR)/*.c) main.c
+OBJ_FILES = $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(SRC_FILES)))
+OBJ_FILES += $(OBJ_DIR)/lex.yy.o $(OBJ_DIR)/y.tab.o
+
 CC = gcc
+CFLAGS = -Wall -Wextra -g -std=c11 -I$(INCLUDE_DIR)
+LDFLAGS = -lm
+
 EXEC = pmllvm
 
 all: $(EXEC)
 
 $(EXEC): $(OBJ_FILES)
-	$(CC) $(OBJ_FILES) $(CC_FLAGS) -o $@
+	$(CC) $^ $(CFLAGS) $(LDFLAGS) -o $@
+
+# Ensure parser is generated before the lexer
+$(OBJ_DIR)/y.tab.o: $(OBJ_DIR)/y.tab.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/lex.yy.o: $(OBJ_DIR)/lex.yy.c $(OBJ_DIR)/y.tab.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/main.o: main.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Generate lexer and parser
+$(OBJ_DIR)/y.tab.c $(OBJ_DIR)/y.tab.h: $(SRC_DIR)/parser.y
+	bison -d -o $(OBJ_DIR)/y.tab.c $<
+
+$(OBJ_DIR)/lex.yy.c: $(SRC_DIR)/lexer.l $(OBJ_DIR)/y.tab.h
+	flex -o $@ $<
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
-
-$(OBJ_DIR)/main.o: main.c $(INCLUDE_DIR)/vm.h $(INCLUDE_DIR)/program.h
-	$(CC) $(CC_FLAGS) -c main.c -o $@
-
-$(OBJ_DIR)/vm.o: $(SRC_DIR)/vm.c $(INCLUDE_DIR)/vm.h $(INCLUDE_DIR)/program.h
-	$(CC) $(CC_FLAGS) -c $(SRC_DIR)/vm.c -o $@
-
-$(OBJ_DIR)/instructions.o: $(SRC_DIR)/instructions.c $(INCLUDE_DIR)/vm.h $(INCLUDE_DIR)/program.h $(INCLUDE_DIR)/instructions.h
-	$(CC) $(CC_FLAGS) -c $(SRC_DIR)/instructions.c -o $@
 
 clean:
 	rm -rf $(OBJ_DIR) $(EXEC)

@@ -152,6 +152,11 @@ void store(){
     if(address>=0 && address < MEM_SIZE){
         int value = stack[sp--];
         memory[address] = value;
+
+        if (address == STDOUT_ADDRESS){
+            printf("Output: %d\n", value);
+        }
+
     }else{
         printf("Memory Write Error\n");
         running = false;

@@ -5,8 +5,11 @@
 #define MEM_SIZE 1024
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "program.h"
 
+#define STDOUT_ADDRESS 512
+#define PLACE_HOLDER 0
 #define sp (registers[SP])
 #define ip (registers[IP])
 

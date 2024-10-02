@@ -8,6 +8,7 @@ typedef void (*InstructionHandler)();
 int memory[MEM_SIZE];
 int registers[NUM_REG] = {0};
 int stack[256] = {0};
+int program[MAX_PROGRAM_SIZE] = {0};
 bool running = true;
 
 InstructionHandler instruction_table[] = {
